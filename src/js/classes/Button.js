@@ -18,7 +18,7 @@ export class Button {
     this.rectangle.isStroked = true;
     this.rectangle.setInteractive();
 
-    this.label = scene.add.bitmapText(x, y - 22, 'bloggerSans', label, 48);
+    this.label = scene.add.text(x, y, label, {fontFamily: "Tenor Sans", fontSize: 35});
     this.label.setOrigin(0.5, 0.5);
   }
 

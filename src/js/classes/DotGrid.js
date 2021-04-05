@@ -107,20 +107,14 @@ export class DotGrid {
       row.forEach((cell, c) => {
         if (cell.dot !== null) {
            
-          //Alexanndr + 16/03/2021 - removing old animations  
-          console.log("bonus " + cell.dot.bonusFeature);    
+          //Alexanndr + 16/03/2021 - removing old animations      
           if(cell.dot.bonusFeature>0){
              cell.dot.bonusFeature = 0;   
-             console.log("bonus " + cell.dot.bonusFeature); 
+             //console.log("bonus " + cell.dot.bonusFeature); 
              cell.dot.anims.stop();  
              cell.dot.anims.remove(this.scene.anims.get('explode'+cell.dot.bonusFeature)); 
-             console.log(cell.dot.currentAnim);    
-//             this.scene.anims.create(this.scene.cfgbonus1);
-//             this.scene.anims.create(this.scene.cfgbonus2);
-//             this.scene.anims.create(this.scene.cfgbonus3);
-             //cell.dot.bonusFeature = 0; 
              cell.dot.setTexture("dot");
-             console.log(cell.dot);  
+            // console.log(cell.dot);  
           };   
           //Alexanndr - 16/03/2021 
             
@@ -177,7 +171,7 @@ export class DotGrid {
   // Removes an array of dots from the grid and moves remaining dots downwards to fill the gaps.
   // Also properly updates dotBuckets. Optimized for removing multiple dots at a time.
   //Alexandr + 16/02/2021 - getting a number of closed points    
-  removeDots(dots , numberOfClosed) {
+  removeDots(dots , numberOfClosed, dotsScore) {
     if (dots.length === 0) return;
 
     let colorId = dots[0].colorId;
@@ -193,24 +187,52 @@ export class DotGrid {
           
           this.colorBuckets[dot.colorId][dot.indexInColorBucket] = null;
           this.grid[dot.row][dot.column].dot = null;
-
+          
+           //Alexandr + 28/03/2021
+          var result = dotsScore.find(obj => {
+              return obj.name === dot.name
+           });
+          
+          if (result!=undefined) {              
+            //console.log(dot.bonusFeature);  
+            let pluspoints = 0;  
+              
+            if (dot.bonusFeature==0){  
+                pluspoints+=1;
+                this.scene.points   +=pluspoints;                 
+            }else {
+                pluspoints+=1;                
+                pluspoints          += dot.bonusFeature;
+                this.scene.points   += pluspoints;     
+            };
+              
+            this.scene.createScoreAnimation(dot.x, dot.y, "+"+pluspoints);              
+          };
+          //Alexandr - 28/03/2021 
+          //console.log(result);           
+          
           //Alexander + 21/02/2021 - destroying animations    
           if(dot.bonusFeature>0){
-             console.log("bonus " + dot.bonusFeature); 
+             //console.log("bonus " + dot.bonusFeature); 
              dot.anims.stop();  
              dot.anims.remove(this.scene.anims.get('explode'+dot.bonusFeature)); 
-             console.log(dot.currentAnim);    
+             //console.log(dot.currentAnim);    
              this.scene.anims.create(this.scene.cfgbonus1);
              this.scene.anims.create(this.scene.cfgbonus2);
              this.scene.anims.create(this.scene.cfgbonus3);
              dot.bonusFeature = 0; 
              dot.setTexture("dot");
-             //console.log(dot);  
+             //console.log(dot);
+             this.scene.dotFruitDissapear.play();              
+          }else{
+              this.scene.dotFruitBonusDissapear.play(); 
           };
-          //Alexander - 21/02/2021        
+          //Alexander - 21/02/2021 
+         
           dot.despawn();
       };
     });
+
 
     // Move dots downwards.
     Object.keys(columnLowestRowChanged).forEach((column) => {
@@ -254,18 +276,14 @@ export class DotGrid {
     // Remove the nulls from the end
     this.colorBuckets[colorId] = colorBucket.slice(0, numDots);
     
-    //Alexandr + 16/02/2021 - getting a bonus
+    //Alexandr + 16/02/2021 - getting a bonus dot
     let bonus = 0;       
       
-    if (numberOfClosed % 3 == 0) {
+    if (numberOfClosed % 5 === 0) {
        bonus = 1; 
-    }  
-    
-    if (numberOfClosed % 4 == 0) {
+    }else if (numberOfClosed % 6 === 0) {
        bonus = 2; 
-    } 
-      
-    if (numberOfClosed % 6 == 0) {
+    }else if (numberOfClosed % 8 === 0) {
        bonus = 3; 
     }     
     //Alexandr - 16/02/2021  
@@ -283,6 +301,8 @@ export class DotGrid {
             cell.dot = this.addNewDot(cell.x, cell.y, bonus); //Alexandr + 16/02/2021
             cell.dot.setGridPosition(r, c);                 
             if (bonus > 0){  
+              this.scene.createScoreAnimation(cell.dot.x, cell.dot.y, "Bonus Dot level " +bonus +"!");
+              this.scene.BonusPickup.play();    
               bonus = 0;
             };              
             //Alexandr - 16/02/2021   
@@ -294,10 +314,10 @@ export class DotGrid {
   //Alexandr - 16/02/2021
     
   //Alexandr + 16/02/2021 - getting a number of closed points    
-  removeAllDotsWithColorId(colorId, numberOfClosed) {
+  removeAllDotsWithColorId(colorId, numberOfClosed, dotsScore) {
     let colorBucket = this.colorBuckets[colorId];
     let numRemoved = colorBucket.length;
-    this.removeDots(colorBucket, numberOfClosed);
+    this.removeDots(colorBucket, numberOfClosed, dotsScore);
     return numRemoved;
   }
   //Alexandr - 16/02/2021  

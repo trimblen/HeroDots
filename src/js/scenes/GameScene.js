@@ -41,7 +41,12 @@ export class GameScene extends Phaser.Scene {
     this.pointer = this.input.activePointer;
     this.input.on('pointerup', () => this.pointerUp());
     this.points = 0;
-    this.music  = undefined;   
+    this.music              = undefined; 
+    this.dotClick           = undefined;
+    this.dotBonusClick      = undefined;
+    this.GameOver           = undefined;
+    this.GameWin            = undefined;
+    this.BonusPickup        = undefined;  
     // Initialize dot grid
     this.dotGrid = new DotGrid(
       this, 
@@ -57,6 +62,7 @@ export class GameScene extends Phaser.Scene {
     // Initialize selection to keep track of currently selected dots
     this.selection = {
       selected: [],
+      selectedScore: [],    
       colorId: 0,
       loop: false
     };
@@ -74,22 +80,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    // Add Background 
-    
+      
+    // Add Background     
     var volumeLevel = localStorage.getItem("volumeLevel") == null ? 1 : localStorage.getItem("volumeLevel");  
     
     const bg = this.add.image(0,0, "gradient-bg").setOrigin(0);
       
     Phaser.Display.Align.In.Center(bg, this.add.zone(this.scale.width/2, this.scale.height/2, this.scale.width, this.scale.height));  
       
-    this.music       = this.sound.add('MenuMusic');      
-    var gotBonus     = 0;  
-
+    this.music                  = this.sound.add('MenuMusic');
+    this.music.loop             = true;  
+    this.dotClick               = this.sound.add('DotClick');  
+    this.dotBonusClick          = this.sound.add('DotBonusClick');  
+    this.dotFruitDissapear      = this.sound.add('dotFruitDissapear');
+    this.dotFruitBonusDissapear = this.sound.add('dotFruitBonusDissapear');   
+    this.GameWin                = this.sound.add('GameWin');
+    this.GameOver               = this.sound.add('GameOver');   
+    this.BonusPickup            = this.sound.add('DotBonusPickup');  
+    var gotBonus                = 0;  
+         
     this.music.play();  
       
     //Alexandr + 01/02/2021 - game score  
     this.isResumed      = false; 
-    this.currentLevel   = localStorage.getItem("levelselect") == null ? 1 : localStorage.getItem("levelselect");
+    this.currentLevel   = parseInt(localStorage.getItem("levelselect") == null ? 1 : localStorage.getItem("levelselect"));
     this.levelScore     = this.currentLevel*10;
     //Alexandr -0 01/02/2021  
       
@@ -165,6 +179,7 @@ export class GameScene extends Phaser.Scene {
 
     switch(state) {
       case GAME_STATE.RUNNING:
+        this.music.resume();    
         //Alexandr + 02/02/2021 - pause check     
         if(!this.isResumed){           
             this.dotGrid.fillWithRandomDots();
@@ -178,12 +193,10 @@ export class GameScene extends Phaser.Scene {
             this.anims.create(this.cfgbonus3);
             
             //this.endTime = this.time.now + GAME_CONSTANTS.ROUND_TIME + 900;
-            this.endTime        = GAME_CONSTANTS.ROUND_TIME;
-            this.timedEvent     = this.time.addEvent({ delay: 950, callback: this.reduceTime, callbackScope: this, loop: true });
-            this.points         = 0;
-            
-            this.uiHandler.pointsDisplay.setText(this.points);
-            //console.log(this.timedEvent);
+            this.endTime         = GAME_CONSTANTS.ROUND_TIME;
+            this.timedEvent      = this.time.addEvent({ delay: 1600 - this.currentLevel*1.6, callback: this.reduceTime, callbackScope: this, loop: true }); //Alexander + 05/04/2021 - simple speed increase algorhytm 
+            this.points          = 0;
+            this.uiHandler.pointsDisplay.setText(this.points); 
             this.updateColorOverlay();
             this.isResumed = false;            
         };
@@ -192,9 +205,12 @@ export class GameScene extends Phaser.Scene {
         break;
 
       case GAME_STATE.OVER:
-        this.uiHandler.yourScore.setText("Your Score: " + this.points);
+        this.music.pause();     
+        this.GameOver.play();    
+        this.uiHandler.yourScore.setText("Your Score is: " + this.points);
         this.pointerUp();
-        this.selection.selected = [];
+        this.selection.selected         = [];
+        this.selection.selectedScore    = [];     
         this.selection.loop = false;
         this.updateSelectedLines();
         this.updatePointerLine();
@@ -204,8 +220,10 @@ export class GameScene extends Phaser.Scene {
         
       //Alexandr + 01/02/2021 - game pause
       case GAME_STATE.PAUSE:
+        this.music.pause();      
         this.pointerUp();
-        this.selection.selected = [];
+        this.selection.selected         = [];
+        this.selection.selectedScore    = [];     
         this.selection.loop = false;
         this.updateSelectedLines();
         this.updatePointerLine();
@@ -216,10 +234,20 @@ export class GameScene extends Phaser.Scene {
       //Alexandr - 01/02/2021 
             
       //Alexandr + 01/02/2021 - game win
-      case GAME_STATE.WIN:
-        this.uiHandler.yourScore.setText("You are a winner! Your Score: " + this.points);    
+      case GAME_STATE.WIN:           
+        this.music.pause();    
+        this.GameWin.play();  
+            
+        let  curLevelFromSt = this.currentLevel+1;            
+        this.uiHandler.currLevel.setText("Your level is: " + (curLevelFromSt).toString()+"\nYou need to gain " + (curLevelFromSt*10).toString()+" points to get in the " + (curLevelFromSt+1).toString() + " level!", {fontFamily: "bloggerSansBold", fontSize: 30});
+        
+        this.levelScore     = curLevelFromSt*10; 
+        this.currentLevel   +=1;
+            
+        this.uiHandler.yourScoreWin.setText("You are a winner! Your Score: " + this.points);    
         this.pointerUp();
-        this.selection.selected = [];
+        this.selection.selected         = [];
+        this.selection.selectedScore    = [];    
         this.selection.loop = false;
         this.updateSelectedLines();
         this.updatePointerLine();
@@ -235,10 +263,12 @@ export class GameScene extends Phaser.Scene {
   dotClicked(dot) {
     if (this.state !== GAME_STATE.RUNNING) return;
 
-    let selected = this.selection.selected;
+    let selected        = this.selection.selected;
+    let selectedScore   = this.selection.selectedScore;  
     if (selected.length === 0) {
       dot.setState(DOT_STATE.SELECTED);
       selected.push(dot);
+      selectedScore.push(dot);    
       this.selection.colorId = dot.colorId;    
       //Alexandr + 24/01/2020   
       this.addDotEffect(dot.x, dot.y, dot.colorId, this.selection.selected[0].frame.name, this.selection.selected[0].texture.key);
@@ -252,7 +282,8 @@ export class GameScene extends Phaser.Scene {
     //console.log(dot.bonusFeature);  
 
     // Only check a hovered dot if a selection has been started and the dot is adjacent to last selected dot.
-    let selected = this.selection.selected;
+    let selected        = this.selection.selected;
+    let selectedScore   = this.selection.selectedScore;  
     if ( selected.length === 0 || !this.dotGrid.checkAdjacent(dot, selected[selected.length-1]) ) return;
 //    
 //    //Alexandr + 18/02/2021 -getting and setting color id for bonus dots
@@ -275,6 +306,7 @@ export class GameScene extends Phaser.Scene {
     ) {
       dot.setState(DOT_STATE.SELECTED);
       selected.push(dot);
+      selectedScore.push(dot);    
       this.addDotEffect(dot.x, dot.y, dot.colorId, selected[selected.length-1].frame.name, selected[selected.length-1].texture.key);
     }
     // If this dot is the previously selected dot, undo the last selected dot.
@@ -287,12 +319,14 @@ export class GameScene extends Phaser.Scene {
         selected[selected.length-1].setState(DOT_STATE.NONE);
       }
       selected.pop();
+      selectedScore.pop();
       this.selection.loop = false;
     }
     // If this dot is the same as the first selected dot and enough dots are selected
     // for a loop, add it and set loop to true.
     else if (selected.length > GAME_CONSTANTS.MIN_LOOP_COUNT - 1 && dot === selected[0]) {
       selected.push(dot);
+      selectedScore.push(dot);    
       this.selection.loop = true;
       this.addDotEffect(dot.x, dot.y, dot.colorId, selected[selected.length-1].frame.name, selected[selected.length-1].texture.key);
     }
@@ -305,7 +339,8 @@ export class GameScene extends Phaser.Scene {
   pointerUp() {
     if (this.state !== GAME_STATE.RUNNING) return;
 
-    let selected = this.selection.selected;
+    let selected        = this.selection.selected;
+    let selectedScore   = this.selection.selectedScore;  
     if (selected.length === 0) return;
 
     //console.log(this.selection.selected.length);   //here is selection path alexandr
@@ -314,18 +349,20 @@ export class GameScene extends Phaser.Scene {
       selected[0].setState(DOT_STATE.NONE);
     }
     else if (this.selection.loop) {
-      console.log('loop');
-      let numRemoved = this.dotGrid.removeAllDotsWithColorId(this.selection.colorId, this.selection.selected.length-1); //Alexandr + 16/02/2021
-      this.points += numRemoved;
+      //console.log('loop');
+      selectedScore.pop();   
+      let numRemoved = this.dotGrid.removeAllDotsWithColorId(this.selection.colorId, this.selection.selected.length-1, selectedScore); //Alexandr + 16/02/2021
+      //this.points += numRemoved;
       this.selection.loop = false;
     }
     else {
-      console.log('no loop');    
-      this.dotGrid.removeDots(selected, this.selection.selected.length); //Alexandr + 16/02/2021
-      this.points += selected.length;
+      //console.log('no loop');    
+      this.dotGrid.removeDots(selected, this.selection.selected.length, selectedScore); //Alexandr + 16/02/2021
+      //this.points += selected.length;
     }
     this.uiHandler.pointsDisplay.setText(this.points);
-    this.selection.selected = [];
+    this.selection.selected         = [];
+    this.selection.selectedScore    = [];  
     this.updateColorOverlay();
     this.updateSelectedLines();
   }
@@ -334,15 +371,39 @@ export class GameScene extends Phaser.Scene {
     this.setState(GAME_STATE.RUNNING); 
   }
     
+  createScoreAnimation(x, y, message){
+      
+    //Create a new label for the score
+    var scoreAnimation  = this.add.text(x, y, message, {fontFamily: 'Tenor Sans', fontSize: '32px',  stroke: "#627388", strokeThickness: 45});   
+    var scoreTween      = this.tweens.add({  
+                        targets: scoreAnimation,
+                        x: 48,
+                        y: 96,
+                        ease: 'Power1',
+                        duration: 1000,
+                          onStart     : ()=>{
+
+                          },       
+
+                          onComplete: ()=>{                         
+
+                          scoreAnimation.destroy();                               
+                        }
+
+                        }, this);            
+
+  };
+    
+    
   exit() {
 //      
 //      
 //    this.timedEvent.paused  = true;
 //    this.timedEvent         = undefined;   
     
-    this.music.pause();
+    this.music.pause();      
     this.music = undefined;  
-      
+          
     this.scene.start(constants.SCENES.GAME);
   }
 
@@ -353,11 +414,10 @@ export class GameScene extends Phaser.Scene {
          this.uiHandler.timerDisplay.text = this.endTime; 
         
         //Alexander + 04/02/2021 - if win set level and finish game
-        if (this.points>=this.levelScore) {
-          localStorage.setItem("levelselect", this.currentLevel+1); 
+        if (this.points>=this.levelScore) {          
           this.updatePointerLine();    
           this.setState(GAME_STATE.WIN); 
-              
+          localStorage.setItem("levelselect", (this.currentLevel+1));    
         };
         //Alexander - 04/02/2021           
         
@@ -444,16 +504,21 @@ export class GameScene extends Phaser.Scene {
           console.error("No DotEffect available!");
           return null;
         }
+        
+        this.dotClick.play();
+        
         dotEffect.dotScale = this.dotGrid.dotScale;
         dotEffect.setColorId(colorId, true);
         dotEffect.setFrameId(frameId);
         dotEffect.spawn();
     }else{
         
+        this.dotBonusClick.play();
+        
         let emitter0    = undefined;
         let emitter1    = undefined;        
-        let minParts    = Phaser.Math.Between(25,50);
-        let maxParts    = Phaser.Math.Between(150,200);          
+        let minParts    = Phaser.Math.Between(5,50);
+        let maxParts    = Phaser.Math.Between(10,70);          
         
         emitter0 = this.add.particles('sparks1').createEmitter({
             x: x,

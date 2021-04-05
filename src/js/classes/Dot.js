@@ -6,14 +6,14 @@ export const DOT_STATE = {
 };
 
 export const DOT_COLORS = [
-  Color.HSLToColor(0.00, 0.85, 0.60),  // Red
-  Color.HSLToColor(0.62, 0.95, 0.60),  // Blue
-  Color.HSLToColor(0.14, 0.85, 0.60),  // Yellow
-  Color.HSLToColor(0.83, 0.85, 0.70),  // Pink
-  Color.HSLToColor(0.27, 0.95, 0.63),  // Green
-  Color.HSLToColor(0.06, 0.90, 0.60),  // Orange
-  Color.HSLToColor(0.75, 0.85, 0.55),  // Purple
-  Color.HSLToColor(0.47, 0.67, 0.55)   // Cyan
+  Color.HSLToColor(0.76, 0.49, 1.0),  // 1
+  Color.HSLToColor(0.12, 0.65, 0.63),  // 2
+  Color.HSLToColor(0.77, 0.37, 0.87),  // 3
+  Color.HSLToColor(0.89, 0.05, 0.96),  // 4
+  Color.HSLToColor(0.75, 0.41, 0.62),  // 5
+  Color.HSLToColor(0.45, -0.44, 0.61),  // 6
+  Color.HSLToColor(0.90, -0.10, 0.93),  // 7
+  Color.HSLToColor(0.47, 0.47, 0.25)   // 8
 ];
 
 const touchRadius = 70;
@@ -93,6 +93,7 @@ export class Dot extends Phaser.GameObjects.Sprite {
   }
 
   despawn() { 
+
     // Start disappear animation
     this.scene.tweens.add({
       targets: this,

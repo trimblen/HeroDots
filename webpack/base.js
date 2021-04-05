@@ -1,6 +1,8 @@
-const webpack = require("webpack");
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack                   = require("webpack");
+const path                      = require("path");
+const HtmlWebpackPlugin         = require("html-webpack-plugin");
+const WebfontPlugin             = require("webfont-webpack-plugin").default;
+
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
@@ -20,9 +22,17 @@ module.exports = {
         use: "raw-loader"
       },
       {
-        test: /\.(gif|png|mp3|jpe?g|svg|xml|fnt)$/i,
+        test: /\.(gif|png|ogg|jpe?g|svg|xml|fnt)$/i,
         use: "file-loader"
-      }
+      },
+      {
+        test: /\.css/,
+        use: ["style-loader", "css-loader"]
+      },
+      {
+        loader: "url-loader",
+        test: /\.(svg|eot|ttf|woff|woff2)?$/
+      }    
     ]
   },
   plugins: [
@@ -34,6 +44,11 @@ module.exports = {
         'WEBGL_RENDERER': JSON.stringify(true),
         'PLUGIN_FBINSTANT': JSON.stringify(true)
     }),
+    new WebfontPlugin({
+      files: path.resolve(__dirname, "../fixtures/svg-icons/**/*.svg"),
+      dest: path.resolve(__dirname, "../fixtures/css/fonts"),
+      destTemplate: path.resolve(__dirname, "../fixtures/css")
+    }),  
     new HtmlWebpackPlugin({
       template: "./index.html"
     })

@@ -11,21 +11,22 @@ export class UiHandler {
 
     // This is a dictionary containing a separate array of UI elements for each game state.
     // Their visibility is handled in this.setState().
-    this.uiElements = {};
-
+    this.uiElements = {};      
+      
     // UI elements: Start Screen
     let startOverlay = scene.add.rectangle(
       canvas.width/2,
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
+      
     startOverlay.on('pointerdown', () => {scene.setState(GAME_STATE.GAMEINFO)}); //Alexandr + 10/02/2021 - showing gameinfo 
     startOverlay.setInteractive();
 
-    let titleText = scene.add.bitmapText(canvas.width/2, canvas.height/2 - 150, 'bloggerSans', 'HeroDots', 115);
+    let titleText = scene.add.text(canvas.width/2, canvas.height/2 - 150, 'HeroDots', {fontFamily: "bloggerSansBold", fontSize: 115});
     titleText.setOrigin(0.5, 0.5);
 
     let startText = new Button(scene, canvas.width/2, canvas.height/2 + 50, 170, 60, 'Start');
@@ -37,7 +38,7 @@ export class UiHandler {
       
     let aboutText = new Button(scene, canvas.width/2, canvas.height/2 + 250, 170, 60, 'About');
     aboutText.rectangle.on('pointerdown', () => {scene.setState(GAME_STATE.ABOUT)});//Alexandr + 16/03/2021
-      //aboutText.setOrigin(0.5, 0.5);  
+    //aboutText.setOrigin(0.5, 0.5);  
 
     this.uiElements[GAME_STATE.START] = [
       startOverlay,
@@ -48,10 +49,11 @@ export class UiHandler {
     ];
 
     // UI Elements: While game is running
-    this.timerDisplay = scene.add.bitmapText(48, 32, 'bloggerSansBold', Math.floor(GAME_CONSTANTS.ROUND_TIME/1000), 64);
+    this.timerDisplay = scene.add.text(48, 32, Math.floor(GAME_CONSTANTS.ROUND_TIME/1000), {fontFamily: "Tenor Sans", fontSize: 45});
     this.timerDisplay.setOrigin(0.5, 0.5);
 
-    this.pointsDisplay = scene.add.bitmapText(48, 96, 'bloggerSansBold', 0, 48);
+    this.pointsDisplay = scene.add.text(48, 96, "", {fontFamily: "bloggerSansBold", fontSize: 40});
+    //console.log(this.pointsDisplay);  
     this.pointsDisplay.setOrigin(0, 0.5);
       
     //Alexandr + 27/01/2020 - displays current level
@@ -64,7 +66,7 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xffffff,
+      0x64AAD0,
       240
     );
       
@@ -83,21 +85,27 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
 
-    let timesUp = scene.add.bitmapText(canvas.width/2, canvas.height/2-100, 'bloggerSansBold', "Time's Up!", 100);
+    let timesUp = scene.add.text(canvas.width/2, canvas.height/2-100, "Time's Up!", {fontFamily: "bloggerSansBold", fontSize: 100});
     timesUp.setOrigin(0.5, 0.5);
 
-    this.yourScore = scene.add.bitmapText(canvas.width/2, canvas.height/2, 'bloggerSans', "Your Score:", 80);
+    this.yourScore = scene.add.text(canvas.width/2, canvas.height/2, "Your Score:", {fontFamily: "bloggerSansBold", fontSize: 80});
     this.yourScore.setOrigin(0.5, 0.5);
 
     let restartButton = new Button(scene, canvas.width/2, canvas.height/2+150, 170, 60, 'Restart');
-    restartButton.rectangle.on('pointerdown', () => scene.setState(GAME_STATE.GAMEINFO));//Alexandr + 10/02/2021
+    restartButton.rectangle.on('pointerdown', function() {        
+        scene.GameOver.stop();
+        scene.setState(GAME_STATE.GAMEINFO);
+    });//Alexandr + 10/02/2021
 
     let exitButton = new Button(scene, canvas.width/2, canvas.height/2+250, 170, 60, 'Exit');
-    exitButton.rectangle.on('pointerdown', () => scene.exit());
+    exitButton.rectangle.on('pointerdown', function() { 
+        scene.GameOver.stop();
+        scene.exit();
+    });
 
     this.uiElements[GAME_STATE.OVER] = [
       gameOverOverlay,
@@ -113,16 +121,16 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
 
-    let aboutTextMain = scene.add.bitmapText(canvas.width/2, canvas.height/2-100, 'bloggerSans', "About", 80);
+    let aboutTextMain = scene.add.text(canvas.width/2, canvas.height/2-100, "About", {fontFamily: "bloggerSansBold", fontSize: 80});
     aboutTextMain.setOrigin(0.5, 0.5);  
     let aboutExitButton = new Button(scene, canvas.width/2, canvas.height/2+200, 170, 60, 'Exit');
     aboutExitButton.rectangle.on('pointerdown', () => scene.exit());
       
-    let aboutContent = scene.add.bitmapText(canvas.width/2, canvas.height/2+50, 'bloggerSans', "About text", 40);
+    let aboutContent = scene.add.text(canvas.width/2, canvas.height/2+50, "Play with fruit dots, check equal fruits to gain max points!\nAdditional thanks to zvukipro.ru and hexdots16.\nGet more than 5 dots per selection to get universal dots bonuses!", {fontFamily: "bloggerSansBold", fontSize: 35});
     aboutContent.setOrigin(0.5, 0.5);  
       
     this.uiElements[GAME_STATE.ABOUT] = [
@@ -139,11 +147,11 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
 
-    let pauseMenuHeader = scene.add.bitmapText(canvas.width/2, canvas.height/2-150, 'bloggerSans', "Pause Menu", 80);  
+    let pauseMenuHeader = scene.add.text(canvas.width/2, canvas.height/2-150, "Pause Menu", {fontFamily: "bloggerSansBold", fontSize: 80});  
     pauseMenuHeader.setOrigin(0.5, 0.5);
       
     let pauserestartButton = new Button(scene, canvas.width/2, canvas.height/2, 170, 60, 'Resume');
@@ -170,24 +178,34 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
 
     let winrestartButton = new Button(scene, canvas.width/2, canvas.height/2+100, 170, 60, 'Exit');
-    winrestartButton.rectangle.on('pointerdown', () => scene.exit());
+    winrestartButton.rectangle.on('pointerdown', function() {
+        scene.GameWin.stop();
+        scene.exit();
+    });
 
     let continueButton = new Button(scene, canvas.width/2, canvas.height/2, 170, 60, 'Continue');
-    continueButton.rectangle.on('pointerdown', () =>  scene.setState(GAME_STATE.GAMEINFO)); //Alexandr + 10/02/2021
+    continueButton.rectangle.on('pointerdown', function() {
+        scene.GameWin.stop();
+        scene.setState(GAME_STATE.GAMEINFO);
+    }); //Alexandr + 10/02/2021
 
-    let winMenuHeader = scene.add.bitmapText(canvas.width/2, canvas.height/2-150, 'bloggerSans', "You win!", 80);  
+    let winMenuHeader = scene.add.text(canvas.width/2, canvas.height/2-250, "You won!", {fontFamily: "bloggerSansBold", fontSize: 80});  
     winMenuHeader.setOrigin(0.5, 0.5);  
+      
+    this.yourScoreWin  = scene.add.text(canvas.width/2, canvas.height/2-100, "", {fontFamily: "bloggerSansBold", fontSize: 35});   
+    this.yourScoreWin.setOrigin(0.5, 0.5); 
       
     this.uiElements[GAME_STATE.WIN] = [
       winGameOverlay,
       winrestartButton,
       continueButton,
-      winMenuHeader        
+      winMenuHeader,
+      this.yourScoreWin    
     ];   
     //Alexandr - 03/02/2021  
       
@@ -197,34 +215,34 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
 
-    let settText = scene.add.bitmapText(canvas.width/2, canvas.height/2-100, 'bloggerSansBold', "Settings!", 100);
+    let settText = scene.add.text(canvas.width/2, canvas.height/2-100, "Settings", {fontFamily: "bloggerSansBold", fontSize: 100});
     settText.setOrigin(0.5, 0.5);  
-    let volumeLevelLabel = scene.add.bitmapText(canvas.width/2, canvas.height/2, 'bloggerSansBold', "Volume level", 40);
+    let volumeLevelLabel = scene.add.text(canvas.width/2, canvas.height/2,  "Volume level", {fontFamily: "bloggerSansBold", fontSize: 40});
     volumeLevelLabel.setOrigin(0.5, 0.5);    
-    let decrButton = new Button(scene, canvas.width/2-150, canvas.height/2+100, 170, 60, '-');
+    
+    let decrButton = new Button(scene, canvas.width/2-100, canvas.height/2+100, 170, 60, '-');
     decrButton.rectangle.on('pointerdown', function(){
-        console.log(scene.sound.volume>0.1);
-        if(scene.sound.volume>0.1){        
+        //console.log(scene.sound.volume>0.1);
+        if(scene.sound.volume-0.1>0.1){        
           scene.sound.setVolume(scene.sound.volume-0.1); 
-          localStorage.setItem("volumeLevel", Math.round(scene.sound.volume * 100)/100);    
-          volumeLevelText.setText(scene.sound.volume.toFixed(1));    
+          localStorage.setItem("volumeLevel", (Math.round(scene.sound.volume * 100)/100).toFixed(1)); 
         };
-    });  
-    //decrButton.setOrigin(0.5, 0.5);  
-    let volumeLevelText =scene.add.bitmapText(canvas.width/2-20, canvas.height/2+80, 'bloggerSans', localStorage.getItem("volumeLevel") == null ? 1 : localStorage.getItem("volumeLevel"), 40);
-    let incrButton = new Button(scene, canvas.width/2+150, canvas.height/2+100, 170, 60, '+');
+    }, this);  
+      
+    let incrButton = new Button(scene, canvas.width/2+100, canvas.height/2+100, 170, 60, '+');
+      
     incrButton.rectangle.on('pointerdown', function(){
-        console.log(scene.sound.volume);
-        if(scene.sound.volume<1){        
+        //console.log(scene.sound.volume);
+        if(scene.sound.volume+0.1<1){        
           scene.sound.setVolume(scene.sound.volume+0.1); 
-          localStorage.setItem("volumeLevel", Math.round(scene.sound.volume * 100)/100);    
-          volumeLevelText.setText(scene.sound.volume.toFixed(1));    
+          localStorage.setItem("volumeLevel", (Math.round(scene.sound.volume * 100)/100).toFixed(1));      
         };
-    });  
+    },this);  
+      
     let muteButton = new Button(scene, canvas.width/2-10, canvas.height/2+175, 250, 60, 'Mute'); 
     muteButton.rectangle.on('pointerdown', function(){
         if (muteButton.label.text=="Unmute"){
@@ -236,7 +254,7 @@ export class UiHandler {
         };       
     });   
     let settingsOkButton = new Button(scene, canvas.width/2, canvas.height/2 + 250, 170, 60, 'Ok');
-    console.log(scene.isResumed);    
+ 
     settingsOkButton.rectangle.on('pointerdown', function () {
        if (scene.isResumed) {scene.setState(GAME_STATE.PAUSE)} else {scene.exit()};
     });
@@ -246,7 +264,6 @@ export class UiHandler {
       settText,
       volumeLevelLabel,    
       decrButton,
-      volumeLevelText,
       incrButton,  
       muteButton,    
       settingsOkButton
@@ -259,23 +276,24 @@ export class UiHandler {
       canvas.height/2,
       canvas.width,
       canvas.height,
-      0xd3f0f5,
+      0x64AAD0,
       100
     );
       
-    let newLevel = scene.add.bitmapText(canvas.width/2, canvas.height/2 - 100, 'bloggerSansBold', "Lets start!", 100);
+    let newLevel = scene.add.text(canvas.width/2, canvas.height/2 - 100, "Lets Start!", {fontFamily: "bloggerSansBold", fontSize: 100});
     newLevel.setOrigin(0.5, 0.5); 
-    
-    let currLevel = scene.add.bitmapText(canvas.width/2, canvas.height/2, 'bloggerSansBold', "Your level is: " + (localStorage.getItem("levelselect") == null ? 1 : localStorage.getItem("levelselect")).toString(), 40);
-    currLevel.setOrigin(0.5, 0.5);   
       
+    let  curLevelFromSt = parseInt(localStorage.getItem("levelselect") == null ? 1 : localStorage.getItem("levelselect")); 
+    this.currLevel      = scene.add.text(canvas.width/2, canvas.height/2, "Your level is: " + (curLevelFromSt).toString()+"\nYou need to gain " + (curLevelFromSt*10).toString()+" points to get in the " + (curLevelFromSt+1).toString() + " level!", {fontFamily: "bloggerSansBold", fontSize: 30});
+    this.currLevel.setOrigin(0.5, 0.5);   
+    
     let levelInfoOkButton = new Button(scene, canvas.width/2, canvas.height/2+100, 170, 60, 'Ok');
     levelInfoOkButton.rectangle.on('pointerdown', () => scene.restart());
 
     this.uiElements[GAME_STATE.GAMEINFO] = [
       levelInfoOverlay,
       newLevel,
-      currLevel,    
+      this.currLevel,    
       levelInfoOkButton
     ];   
     //Alexandr - 07/02/2021   
