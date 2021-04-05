@@ -8,6 +8,7 @@
 * Making a loop will clear all dots of that color.
 * Clear as many fruitdots as you can within the time limit!
 * If you reach some fruit-dots count limit per time (more than 4 per time) you can archive some bonus fruit-dots
+* Make sure, that you have enough time to do it! :)
 
 ## Requirements
 
