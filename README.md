@@ -7,7 +7,7 @@
 * Drag across fruit-dots of the same color to clear them.
 * Making a loop will clear all dots of that color.
 * Clear as many fruitdots as you can within the time limit!
-* If you reach some fruit-dots count limit per time you can archive some bonus fruit-dots
+* If you reach some fruit-dots count limit per time (more than 4 per time) you can archive some bonus fruit-dots
 
 ## Requirements
 
