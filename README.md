@@ -7,7 +7,8 @@
 * Drag across fruit-dots of the same color to clear them.
 * Making a loop will clear all dots of that color.
 * Clear as many fruitdots as you can within the time limit!
-* If you reach some fruit-dots count limit per time you can archive some bonus fruit-dots
+* If you reach some fruit-dots count limit per time (more than 4 per time) you can archive some bonus fruit-dots
+* Make sure, that you have enough time to do it! :)
 
 ## Requirements
 
@@ -28,4 +29,5 @@ OR
 * [Hex Dots](https://github.com/jfox16/hex-dots)
 * [Phaser 3 Project Template](https://github.com/photonstorm/phaser3-project-template)
 * [Blogger Font](https://www.fontfabric.com/fonts/blogger/)
+* [Zvuki PRO](https://www.zvukipro.com/)
 
