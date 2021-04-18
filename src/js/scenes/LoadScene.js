@@ -13,6 +13,7 @@ import dotBonusClick from '../../assets/audio/DotBonusClick.ogg';
 import dotFruitDissapear from '../../assets/audio/DissapearFruitDot.ogg';
 import dotFruitBonusDissapear from '../../assets/audio/DissapearBonusDot.ogg';
 import GameOver from '../../assets/audio/GameOver.ogg';
+import SoundTest from '../../assets/audio/SoundTest.ogg';
 import GameWin from '../../assets/audio/GameWin.ogg';
 import sparks1 from '../../assets/particles/red.png';
 import sparks2 from '../../assets/particles/blue.png';
@@ -41,6 +42,7 @@ export class LoadScene extends Phaser.Scene {
     this.load.audio('DotClick'               , dotClick);
     this.load.audio('DotBonusClick'          , dotBonusClick);
     this.load.audio('DotBonusPickup'         , dotBonusPickup);  
+    this.load.audio('SoundTest'              , SoundTest);  
       
     this.load.audio('dotFruitDissapear'      , dotFruitDissapear);
     this.load.audio('dotFruitBonusDissapear' , dotFruitBonusDissapear);       

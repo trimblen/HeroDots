@@ -225,21 +225,26 @@ export class UiHandler {
     volumeLevelLabel.setOrigin(0.5, 0.5);    
     
     let decrButton = new Button(scene, canvas.width/2-100, canvas.height/2+100, 170, 60, '-');
+      
     decrButton.rectangle.on('pointerdown', function(){
-        //console.log(scene.sound.volume>0.1);
-        if(scene.sound.volume-0.1>0.1){        
-          scene.sound.setVolume(scene.sound.volume-0.1); 
+        if(scene.sound.volume>=0.1){        
+          scene.sound.setVolume(scene.sound.volume-=0.1); 
           localStorage.setItem("volumeLevel", (Math.round(scene.sound.volume * 100)/100).toFixed(1)); 
+          if (scene.isResumed){
+            scene.SoundTest.play();  
+          };    
         };
     }, this);  
       
     let incrButton = new Button(scene, canvas.width/2+100, canvas.height/2+100, 170, 60, '+');
       
     incrButton.rectangle.on('pointerdown', function(){
-        //console.log(scene.sound.volume);
-        if(scene.sound.volume+0.1<1){        
-          scene.sound.setVolume(scene.sound.volume+0.1); 
-          localStorage.setItem("volumeLevel", (Math.round(scene.sound.volume * 100)/100).toFixed(1));      
+        if(scene.sound.volume<1){        
+          scene.sound.setVolume(scene.sound.volume+=0.1);      
+          localStorage.setItem("volumeLevel", (Math.round(scene.sound.volume * 100)/100).toFixed(1)); 
+          if (scene.isResumed){
+            scene.SoundTest.play();  
+          };        
         };
     },this);  
       
@@ -248,6 +253,9 @@ export class UiHandler {
         if (muteButton.label.text=="Unmute"){
            scene.sound.mute = false; 
            muteButton.label.setText("Mute");
+           if (scene.isResumed){
+            scene.SoundTest.play();  
+           };      
         }else{
            scene.sound.mute = true;
            muteButton.label.setText("Unmute");     

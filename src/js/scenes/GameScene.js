@@ -46,7 +46,8 @@ export class GameScene extends Phaser.Scene {
     this.dotBonusClick      = undefined;
     this.GameOver           = undefined;
     this.GameWin            = undefined;
-    this.BonusPickup        = undefined;  
+    this.BonusPickup        = undefined; 
+    this.SoundTest          = undefined;   
     // Initialize dot grid
     this.dotGrid = new DotGrid(
       this, 
@@ -96,7 +97,8 @@ export class GameScene extends Phaser.Scene {
     this.dotFruitBonusDissapear = this.sound.add('dotFruitBonusDissapear');   
     this.GameWin                = this.sound.add('GameWin');
     this.GameOver               = this.sound.add('GameOver');   
-    this.BonusPickup            = this.sound.add('DotBonusPickup');  
+    this.BonusPickup            = this.sound.add('DotBonusPickup');
+    this.SoundTest              = this.sound.add('SoundTest');    
     var gotBonus                = 0;  
          
     this.music.play();  
